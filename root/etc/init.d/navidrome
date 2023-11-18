@@ -10,6 +10,7 @@ config_path="/etc/navidrome/navidrome.toml"
 log_path="/tmp/navidrome/navidrome.log"
 log_log_max_lines=1500
 log_retain_lines=500
+mkdir -p "$(dirname "$log_path")"
 
 get_config() {
 	config_load navidrome
@@ -54,6 +55,7 @@ start_service() {
 		# 记录进程 PID
 		echo $! > $child_pid
 		echo "Started navidrome process."
+
 		# 后台截断日志
 		(
 			while true; do
