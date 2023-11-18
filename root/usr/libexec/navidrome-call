@@ -8,57 +8,83 @@ log_path="/tmp/navidrome/navidrome.log"
 
 # 从GitHub获取最新发布版的版本号
 get_latest_version() {
-    curl -sL https://api.github.com/repos/navidrome/navidrome/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' | sed 's/^v//'
+	curl -sL https://api.github.com/repos/navidrome/navidrome/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' | sed 's/^v//'
 }
 
 # 获取本地文件的版本号
 get_local_version() {
-    if [ -x "$Program_path" ]; then
-        local_version=$(${Program_path} -v | awk '{print $1}')
-        echo "$local_version"
-    else
-        echo "0.0.0"  # 如果本地文件不存在
-    fi
+	if [ -x "$Program_path" ]; then
+		local_version=$(${Program_path} -v | awk '{print $1}')
+		echo "$local_version"
+	else
+		echo "0.0.0"  # 如果本地文件不存在
+	fi
 }
 
 # 比较本地版本和最新版本
 compare_versions() {
-    local_version=$(get_local_version)
+	local_version=$(get_local_version)
 
-    if [ "$local_version" == "$latest_version" ]; then
-        echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】本地文件已经是最新版本 ($local_version)，无需更新" >> $log_path
-        exit 2
-    else
-        echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】本地文件不是最新版本 ($local_version -> $latest_version)" >> $log_path
-        # download
-        download
-        /etc/init.d/navidrome stop
-        update
-        /etc/init.d/navidrome start
-    fi
+	if [ "$local_version" == "$latest_version" ]; then
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】本地文件已经是最新版本 ($local_version)，无需更新" >> $log_path
+		exit 2
+	else
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】本地文件不是最新版本 ($local_version -> $latest_version)" >> $log_path
+		# download
+		download
+		/etc/init.d/navidrome stop
+		update
+		/etc/init.d/navidrome start
+	fi
 }
 
 # 下载最新版的Navidrome到临时目录
 download() {
-    download_url="https://github.com/navidrome/navidrome/releases/download/v${latest_version}/navidrome_${latest_version}_linux_amd64.tar.gz"
+	Archt="$(uname -m)"
+	case $Archt in
+		"x86_64" | "amd64")
+			Arch="amd64"
+			;;
+		"aarch64" | "arm64")
+			Arch="arm64"
+			;;
+		"armv7l" | "armv7")
+			Arch="armv7"
+			;;
+		"armv6l" | "armv6")
+			Arch="armv6"
+			;;
+		"armv5l" | "armv5")
+			Arch="armv5"
+			;;
+		"i386" | "i486" | "i586" | "i686")
+			Arch="386"
+			;;
+		*)
+			echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】无法判断核心类型" >> $log_path
+			EXIT 1
+			;;
+	esac
 
-    echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】正在下载 Navidrome $latest_version 到 $download_path..." >> $log_path
-    mkdir -p "$download_path"
-    curl -L "$download_url" -o "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
-    [ $? -ne 0 ] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】二进制文件下载错误，退出!" >> $log_path && exit
-    echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】下载完成!" >> $log_path
+	download_url="https://github.com/navidrome/navidrome/releases/download/v${latest_version}/navidrome_${latest_version}_linux_${Arch}.tar.gz"
+
+	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】正在下载 Navidrome $latest_version 到 $download_path..." >> $log_path
+	mkdir -p "$download_path"
+	curl -L "$download_url" -o "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
+	[ $? -ne 0 ] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】二进制文件下载错误，退出!" >> $log_path && exit
+	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】下载完成!" >> $log_path
 }
 
 # 安装从临时目录下载的Navidrome
 update() {
-    echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】解压到 $Program_path..." >> $log_path
-    mkdir -p "$extraction_path"
-    mkdir -p "$(dirname "$Program_path")"
-    tar -xz -C "$extraction_path" -f "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
-    mv "$extraction_path/navidrome" "$Program_path"
-    echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】Navidrome $latest_version 更新完成!" >> $log_path
-    # 清理：删除临时下载和解压目录
-    rm -rf "$download_path" "$extraction_path"
+	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】解压到 $Program_path..." >> $log_path
+	mkdir -p "$extraction_path"
+	mkdir -p "$(dirname "$Program_path")"
+	tar -xz -C "$extraction_path" -f "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
+	mv "$extraction_path/navidrome" "$Program_path"
+	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】Navidrome $latest_version 更新完成!" >> $log_path
+	# 清理：删除临时下载和解压目录
+	rm -rf "$download_path" "$extraction_path"
 }
 
 if [ "$1" == "download" ]; then
