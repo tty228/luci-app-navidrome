@@ -5,7 +5,11 @@ STOP=90
 USE_PROCD=1
 
 child_pid="/var/run/navidrome.pid"
-config_file="/etc/navidrome/navidrome.toml"
+log_pid="/var/run/log_navidrome.pid"
+config_path="/etc/navidrome/navidrome.toml"
+log_path="/tmp/navidrome/navidrome.log"
+log_log_max_lines=1500
+log_retain_lines=500
 
 get_config() {
     config_load navidrome
@@ -37,10 +41,10 @@ modify_config() {
     local config_value=$(uci get navidrome.config."$config_name")
 
     # 删除旧的配置项
-    sed -i "/^$config_name /d" "$config_file"
+    sed -i "/^$config_name /d" "$config_path"
 
     # 写入新的配置项
-    echo "$config_name = '$config_value'" >> "$config_file"
+    echo "$config_name = '$config_value'" >> "$config_path"
 }
 
 start_service() {
@@ -51,12 +55,28 @@ start_service() {
 		/usr/libexec/navidrome-call download
 		[ $? -ne 0 ] && procd_close_instance && return
 		# 启动 navidrome
-		procd_set_param command /usr/share/navidrome/navidrome --configfile "/etc/navidrome/navidrome.toml" > /dev/null 2>&1
+		procd_set_param command sh -c "/usr/share/navidrome/navidrome --configfile $config_path > $log_path 2>&1"
 		# 记录进程 PID
 		echo $! > $child_pid
+		procd_set_param file $config_path
 		echo "Started navidrome process."
 	fi
 	procd_close_instance
+
+	# 后台截断日志
+    (
+        while true; do
+            sleep 3600 # 每小时
+            current_lines=$(wc -l < "$log_path")
+            if [ "$current_lines" -gt "$log_log_max_lines" ]; then
+				tail -n "$log_retain_lines" "$log_path" > "$log_path.tmp"
+				mv "$log_path.tmp" "$log_path"
+				echo "Trimmed log file to $log_retain_lines lines."
+            fi
+        done
+    ) &
+    # 记录后台截断日志进程 PID
+    echo $! > $log_pid
 }
 
 stop_service() {
@@ -69,6 +89,14 @@ stop_service() {
         done
     }
     echo "Terminating navidrome process..."
+
+    # 停止后台截断日志的进程
+    if [ -f /var/run/log_truncate.pid ]; then
+        log_truncate_pid=$(cat /var/run/log_truncate.pid)
+        kill -15 $log_truncate_pid
+        rm -f $log_pid
+        echo "Log truncation process stopped"
+    fi
 }
 
 reload_service() {
