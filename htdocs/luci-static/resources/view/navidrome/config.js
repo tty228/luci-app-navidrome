@@ -52,7 +52,7 @@ return view.extend({
 		var	m, s, o,
 			programPath = '/usr/share/navidrome/navidrome';
 
-		m = new form.Map('navidrome', _('Navidrome'), _('Welcome to luci-app-navidrome!<br />For more information, please visit:<br />') + '<a href="https://github.com/navidrome/navidrome/" target="_blank">' + _('Navidrome') + '</a>' + _('<br />') + '<a href="https://github.com/tty228/luci-app-navidrome">' + _('luci-app-navidrome<br />') + '</a>');
+		m = new form.Map('navidrome', _('Navidrome'), _('Welcome to luci-app-navidrome!<br />For more information, please visit:<br />') + '<a href="https://github.com/navidrome/navidrome/" target="_blank">' + _('Navidrome') + '</a>' + _('<br />') + '<a href="https://github.com/tty228/luci-app-navidrome" target="_blank">' + _('luci-app-navidrome<br />') + '</a>');
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
@@ -153,7 +153,7 @@ return view.extend({
 				return fs.write('/etc/navidrome/navidrome.toml', formvalue.trim().replace(/\r\n/g, '\n') + '\n');
 			});
 		};
-		o.description = _('<br />If you want to learn more about the meanings of the setup options, please click here:') + '<a href="https://www.navidrome.org/docs/usage/configuration-options/#available-options">' + _(' Navidrome Configuration Options') + '</a>'+ _('<br/>') + _('Please use the 「Save」 button in the text box.');
+		o.description = _('<br />If you want to learn more about the meanings of the setup options, please click here:') + '<a href="https://www.navidrome.org/docs/usage/configuration-options/#available-options" target="_blank">' + _(' Navidrome Configuration Options') + '</a>'+ _('<br/>') + _('Please use the 「Save」 button in the text box.');
 
 
 		return m.render();

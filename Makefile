@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-navidrome
-PKG_VERSION:=1.1
+PKG_VERSION:=1.2
 PKG_RELEASE:=
 PKG_MAINTAINER:=tty228 <tty228@yeah.net>
 PKG_CONFIG_DEPENDS:= \
@@ -22,7 +22,6 @@ config PACKAGE_$(PKG_NAME)_Enable_Transcoding
         help
                 Remember to install ffmpeg in your system, a requirement for Navidrome to work properly. 
         select PACKAGE_ffmpeg
-        depends on PACKAGE_$(PKG_NAME)
         default n
 endef
 

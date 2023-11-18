@@ -4,17 +4,23 @@ START=99
 STOP=90
 USE_PROCD=1
 
-child_pid="/var/run/navidrome.pid"
-log_pid="/var/run/log_navidrome.pid"
+child_pid_path="/var/run/navidrome.pid"
 config_path="/etc/navidrome/navidrome.toml"
 log_path="/tmp/navidrome/navidrome.log"
-log_log_max_lines=1500
-log_retain_lines=500
 mkdir -p "$(dirname "$log_path")"
 
 get_config() {
 	config_load navidrome
 	config_get Enable 'config' 'Enable'
+	config_get MusicFolder 'config' 'MusicFolder'
+	config_get DataFolder 'config' 'DataFolder'
+	config_get CacheFolder 'config' 'CacheFolder'
+	config_get ScanSchedule 'config' 'ScanSchedule'
+	config_get ImageCacheSize 'config' 'ImageCacheSize'
+	config_get TranscodingCacheSize 'config' 'TranscodingCacheSize'
+	config_get Address 'config' 'Address'
+	config_get Port 'config' 'Port'
+	config_get LogLevel 'config' 'LogLevel'
 
 	modify_config "MusicFolder"
 	modify_config "DataFolder"
@@ -29,8 +35,8 @@ get_config() {
 		echo "Navidrome is not enabled. Exiting..."
 		return 1
 	fi
-	if [ ! "$(ls -A $DataFolder)" ]; then
-		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】DataFolder is empty. Exiting..." >> $log_path
+	if [ ! -d "$DataFolder" ]; then
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】${DataFolder} is empty. Exiting..." >> $log_path
 		return 1
 	fi
 	return 0
@@ -38,13 +44,15 @@ get_config() {
 
 modify_config() {
 	local config_name="$1"
-	local config_value=$(uci get navidrome.config."$config_name") || return
+	local config_value
+	eval "config_value=\$$config_name"
+	[ -z "$config_value" ] && return
 
 	# 删除旧的配置项
 	sed -i "/^$config_name /d" "$config_path"
 
 	# 写入新的配置项
-	echo "$config_name = '$config_value'" >> "$config_path"
+	echo "$config_name = \"$config_value\"" >> "$config_path"
 }
 
 start_service() {
@@ -53,44 +61,11 @@ start_service() {
 		# 启动 navidrome
 		procd_set_param command sh -c "/usr/share/navidrome/navidrome --configfile $config_path > $log_path 2>&1"
 		# 记录进程 PID
-		echo $! > $child_pid
+		echo $! > $child_pid_path
 		echo "Started navidrome process."
-
-		# 后台截断日志
-		(
-			while true; do
-				sleep 3600 # 每小时
-				current_lines=$(wc -l < "$log_path")
-				if [ "$current_lines" -gt "$log_log_max_lines" ]; then
-					tail -n "$log_retain_lines" "$log_path" > "$log_path.tmp"
-					mv "$log_path.tmp" "$log_path"
-					echo "Trimmed log file to $log_retain_lines lines."
-				fi
-			done
-		) &
-		# 记录后台截断日志进程 PID
-		echo $! > $log_pid
+		/usr/libexec/navidrome-call log_truncate
 	}
 	procd_close_instance
-}
-
-stop_service() {
-	[ -f "$child_pid" ] && parent_pid=$(cat $child_pid)
-	[ -n "$parent_pid" ] && {
-		child_pids=$(pgrep -P $parent_pid)
-		echo "Terminating child processes of navidrome..."
-		for child_pid in $child_pids; do
-			kill $child_pid
-		done
-		echo "Terminating navidrome process..."
-	}
-
-	[ -f "$log_pid" ] && log_truncate_pid=$(cat $log_pid)
-	[ -n "$parent_pid" ] && {
-		kill -15 $log_truncate_pid
-        rm -f $log_pid
-        echo "Log truncation process stopped"
-	}
 }
 
 reload_service() {

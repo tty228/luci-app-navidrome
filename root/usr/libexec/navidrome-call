@@ -87,6 +87,32 @@ update() {
 	rm -rf "$download_path" "$extraction_path"
 }
 
+# 定时截短日志
+log_truncate() {
+	log_path="/tmp/navidrome/navidrome.log"
+	log_pid_path="/var/run/log_navidrome.pid"
+	child_pid_path="/var/run/navidrome.pid"
+	log_log_max_lines=1500
+	log_retain_lines=500
+	[ -f "$log_pid_path" ] && return
+	(
+		while true; do
+			sleep 3600 # 每小时
+			current_lines=$(wc -l < "$log_path")
+			if [ "$current_lines" -gt "$log_log_max_lines" ]; then
+				tail -n "$log_retain_lines" "$log_path" > "$log_path.tmp"
+				mv "$log_path.tmp" "$log_path"
+				echo "Trimmed log file to $log_retain_lines lines."
+			fi
+			if [ ! -f "$child_pid_path" ]; then
+				rm -f $log_pid_path
+				exit
+			fi
+		done
+	) &
+	echo $! > $log_pid_path
+}
+
 if [ "$1" == "download" ]; then
 	[ -f $Program_path ] && return 0
 	latest_version=$(get_latest_version)
@@ -97,5 +123,7 @@ elif [ "$1" == "update" ]; then
 	compare_versions &
 elif [ "$1" == "clear_log" ]; then
 	> $log_path
+elif [ "$1" == "log_truncate" ]; then
+	log_truncate
 fi
 

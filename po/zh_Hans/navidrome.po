@@ -21,10 +21,6 @@ msgstr "日志"
 msgid "Welcome to luci-app-navidrome!<br />For more information, please visit:<br />"
 msgstr "欢迎使用 luci-app-navidrome！<br />更多信息，请访问："
 
-#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:50
-msgid " Navidrome Configuration Options"
-msgstr " Navidrome 配置选项"
-
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:76
 msgid "Enabled"
 msgstr "程序开关"
@@ -100,6 +96,10 @@ msgstr "配置文件"
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:156
 msgid "<br />If you want to learn more about the meanings of the setup options, please click here:"
 msgstr "<br />如果你想了解更多关于设置选项的含义，请点击这里："
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:156
+msgid " Navidrome Configuration Options"
+msgstr " Navidrome 配置选项"
 
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:156
 msgid "Please use the 「Save」 button in the text box."
