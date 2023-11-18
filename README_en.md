@@ -16,7 +16,6 @@ Run Navidrome directly on OpenWrt routers, without using Docker.
 ## Instructions
 
 - This is the initial version, and there may be some unexpected errors. Use with caution.
-- Currently only supports x86/64
 - If transcoding is needed, please install ffmpeg manually (not tested).
 
 ## Download

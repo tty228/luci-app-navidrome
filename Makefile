@@ -8,11 +8,23 @@ PKG_NAME:=luci-app-navidrome
 PKG_VERSION:=1.1
 PKG_RELEASE:=
 PKG_MAINTAINER:=tty228 <tty228@yeah.net>
-PKG_CONFIG_DEPENDS:=
+PKG_CONFIG_DEPENDS:= \
+        CONFIG_PACKAGE_$(PKG_NAME)_Enable_Transcoding
 
 LUCI_TITLE:=Your Personal Streaming Service
 LUCI_PKGARCH:=all
-LUCI_DEPENDS:=
+LUCI_DEPENDS:= \
+        +PACKAGE_$(PKG_NAME)_Enable_Transcoding:ffmpeg
+
+define Package/$(PKG_NAME)/config
+config PACKAGE_$(PKG_NAME)_Enable_Transcoding
+        bool "Enable Transcoding"
+        help
+                Remember to install ffmpeg in your system, a requirement for Navidrome to work properly. 
+        select PACKAGE_ffmpeg
+        depends on PACKAGE_$(PKG_NAME)
+        default n
+endef
 
 define Package/$(PKG_NAME)/conffiles
 /etc/config/navidrome
