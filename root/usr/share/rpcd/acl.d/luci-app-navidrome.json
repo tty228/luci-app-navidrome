@@ -4,8 +4,9 @@
 		"read": {
 			"file": {
 				"/etc/init.d/navidrome": [ "exec" ],
+				"/usr/libexec/navidrome-call": [ "exec" ],
 				"/tmp/navidrome/*": [ "read" ],
-				"/usr/libexec/navidrome-call": [ "exec" ]
+				"/etc/navidrome/navidrome.toml": [ "read" ]
 			},
 			"ubus": {
 				"service": [ "list" ]

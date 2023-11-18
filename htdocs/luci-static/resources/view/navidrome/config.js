@@ -134,6 +134,23 @@ return view.extend({
 		o.value("info", _("info"))
 		o.value("debug", _("debug"))
 
+		o = s.option(form.TextValue, '_config', _('Config File'));
+		o.rows = 20;
+		o.wrap = 'oft';
+		o.cfgvalue = function (section_id) {
+			return fs.trimmed('/etc/navidrome/navidrome.toml');
+		};
+		o.write = function (section_id, formvalue) {
+			return this.cfgvalue(section_id).then(function (value) {
+				if (value == formvalue) {
+					return
+				}
+				return fs.write('/etc/navidrome/navidrome.toml', formvalue.trim().replace(/\r\n/g, '\n') + '\n');
+			});
+		};
+		o.description = _('<br />If you want to learn more about the meanings of the setup options, please click here:') + '<a href="https://www.navidrome.org/docs/usage/configuration-options/#available-options">' + _(' Navidrome Configuration Options') + '</a>'+ _('<br/>Please use the 「Save」 button in the text box.');
+
+
 		return m.render();
 	}
 });
