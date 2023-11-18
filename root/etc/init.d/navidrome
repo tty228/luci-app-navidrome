@@ -29,7 +29,7 @@ get_config() {
 		return 1
 	fi
 	if [ ! "$(ls -A $DataFolder)" ]; then
-		echo "DataFolder is empty. Exiting..."
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】DataFolder is empty. Exiting..." >> $log_path
 		return 1
 	fi
 	return 0

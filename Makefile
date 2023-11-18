@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-navidrome
-PKG_VERSION:=1.0
+PKG_VERSION:=1.1
 PKG_RELEASE:=
 PKG_MAINTAINER:=tty228 <tty228@yeah.net>
 PKG_CONFIG_DEPENDS:=
