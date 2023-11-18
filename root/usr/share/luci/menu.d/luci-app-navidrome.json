@@ -1,6 +1,6 @@
 {
 	"admin/services/navidrome": {
-		"title": "navidrome",
+		"title": "Navidrome",
 		"order": 30,
 		"action": {
 			"type": "firstchild"
@@ -12,7 +12,7 @@
 	},
 
 	"admin/services/navidrome/config": {
-		"title": "Basic Settings",
+		"title": "Settings",
 		"order": 10,
 		"action": {
 			"type": "view",
