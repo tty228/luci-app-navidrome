@@ -24,13 +24,16 @@ function getServiceStatus() {
 	});
 }
 
-function renderStatus(isRunning) {
+function renderStatus(isRunning, listen_port, noweb) {
 	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
 	var renderHTML;
 	if (isRunning) {
-		renderHTML = String.format(spanTemp, 'green', _('navidrome'), _('RUNNING'));
+		renderHTML = spanTemp.format('green', _('navidrome'), _('RUNNING'));
+		if (noweb !== '1')
+			renderHTML+= String.format('&#160;<a class="btn cbi-button" href="%s:%s" target="_blank" rel="noreferrer noopener">%s</a>',
+				window.location.origin, listen_port, _('Open Web Interface'));
 	} else {
-		renderHTML = String.format(spanTemp, 'red', _('navidrome'), _('NOT RUNNING'));
+		renderHTML = spanTemp.format('red', _('navidrome'), _('NOT RUNNING'));
 	}
 
 	return renderHTML;
@@ -44,28 +47,30 @@ return view.extend({
 	},
 
 	render: function (data) {
-		var hosts = data[0],
-			m, s, o,
+		var listen_port = (uci.get(data[0], 'config', 'Port') || '4533'),
+			noweb = uci.get(data[0], 'config', 'noweb') || '0';
+		var	m, s, o,
 			programPath = '/usr/share/navidrome/navidrome';
 
-		m = new form.Map('navidrome', _('navidrome'), _('Welcome to luci-app-navidrome!<br /><br />If you encounter any issues while using it, please submit them here:') + '<a href="https://github.com/tty228/luci-app-navidrome" target="_blank">' + _(' GitHub Project Address') + '</a>' + _('<br />If you want to learn more about the meanings of the setup options, please click here:') + '<a href="https://www.navidrome.org/docs/usage/configuration-options/#available-options">' + _(' Navidrome Configuration Options') + '</a>');
+		m = new form.Map('navidrome', _('Navidrome'), _('Welcome to luci-app-navidrome!<br />For more information, please visit:<br />') + '<a href="https://github.com/navidrome/navidrome/" target="_blank">' + _('Navidrome') + '</a>' + _('<br />') + '<a href="https://github.com/tty228/luci-app-navidrome">' + _('luci-app-navidrome<br />') + '</a>');
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
 		s.render = function () {
-			var statusView = E('p', { id: 'service_status' }, _('Collecting data ...'));
-			poll.add(function () {
-				return L.resolveDefault(getServiceStatus()).then(function (res) {
-					statusView.innerHTML = renderStatus(res);
-				});
+		var statusView = E('p', { id: 'service_status' }, _('Collecting data ...'));
+		poll.add(function () {
+			return L.resolveDefault(getServiceStatus()).then(function (res) {
+				var view = document.getElementById('service_status');
+				statusView.innerHTML = renderStatus(res, listen_port, noweb);
 			});
+		});
 
-			setTimeout(function () {
-				poll.start();
-			}, 100);
+		setTimeout(function () {
+			poll.start();
+		}, 100);
 
-			return E('div', { class: 'cbi-section', id: 'status_bar' }, [
-				statusView
+		return E('div', { class: 'cbi-section', id: 'status_bar' }, [
+			statusView
 			]);
 		}
 
@@ -148,7 +153,7 @@ return view.extend({
 				return fs.write('/etc/navidrome/navidrome.toml', formvalue.trim().replace(/\r\n/g, '\n') + '\n');
 			});
 		};
-		o.description = _('<br />If you want to learn more about the meanings of the setup options, please click here:') + '<a href="https://www.navidrome.org/docs/usage/configuration-options/#available-options">' + _(' Navidrome Configuration Options') + '</a>'+ _('<br/>Please use the 「Save」 button in the text box.');
+		o.description = _('<br />If you want to learn more about the meanings of the setup options, please click here:') + '<a href="https://www.navidrome.org/docs/usage/configuration-options/#available-options">' + _(' Navidrome Configuration Options') + '</a>'+ _('<br/>') + _('Please use the 「Save」 button in the text box.');
 
 
 		return m.render();

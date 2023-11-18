@@ -18,16 +18,8 @@ msgid "Log"
 msgstr "日志"
 
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:50
-msgid "Welcome to luci-app-navidrome!<br /><br />If you encounter any issues while using it, please submit them here:"
-msgstr "欢迎使用 luci-app-navidrome。<br /><br />如果你在使用中遇到问题，请到这里提交："
-
-#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:50
-msgid " GitHub Project Address"
-msgstr " GitHub 项目地址"
-
-#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:50
-msgid "<br />If you want to learn more about the meanings of the setup options, please click here:"
-msgstr "<br />如果你想了解更多关于设置选项的含义，请点击这里："
+msgid "Welcome to luci-app-navidrome!<br />For more information, please visit:<br />"
+msgstr "欢迎使用 luci-app-navidrome！<br />更多信息，请访问："
 
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:50
 msgid " Navidrome Configuration Options"
@@ -105,8 +97,12 @@ msgstr "日志等级"
 msgid "Config File"
 msgstr "配置文件"
 
-#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:137
-msgid "<br/>Please use the 「Save」 button in the text box."
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:156
+msgid "<br />If you want to learn more about the meanings of the setup options, please click here:"
+msgstr "<br />如果你想了解更多关于设置选项的含义，请点击这里："
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:156
+msgid "Please use the 「Save」 button in the text box."
 msgstr "文本框请使用「保存」按钮"
 
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:75
