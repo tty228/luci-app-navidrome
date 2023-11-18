@@ -47,7 +47,9 @@ start_service() {
 	procd_open_instance
 	get_config
 	if [ $? -eq 0 ];then
-		
+		# 下载二进制文件
+		/usr/libexec/navidrome-call download
+		[ $? -ne 0 ] && procd_close_instance && return
 		# 启动 navidrome
 		procd_set_param command /usr/share/navidrome/navidrome --configfile "/etc/navidrome/navidrome.toml" > /dev/null 2>&1
 		# 记录进程 PID

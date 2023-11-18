@@ -1,3 +1,74 @@
 #!/bin/sh
 
-# 下载二进制文件代码，下次再做
+# 设置变量
+Program_path=$(uci get navidrome.config.Program_path)
+download_path="/tmp/navidrome/download"
+extraction_path="/tmp/navidrome/extraction"
+log_path="/tmp/navidrome/navidrome.log"
+
+# 从GitHub获取最新发布版的版本号
+get_latest_version() {
+    curl -sL https://api.github.com/repos/navidrome/navidrome/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' | sed 's/^v//'
+}
+
+# 获取本地文件的版本号
+get_local_version() {
+    if [ -x "$Program_path" ]; then
+        local_version=$(/tmp/navidrome/path/navidrome -v | awk '{print $1}')
+        echo "$local_version"
+    else
+        echo "0.0.0"  # 如果本地文件不存在
+    fi
+}
+
+# 比较本地版本和最新版本
+compare_versions() {
+    local_version=$(get_local_version)
+
+    if [ "$local_version" == "$latest_version" ]; then
+        echo "`date "+%Y-%m-%d %H:%M:%S"`【info】本地文件已经是最新版本 ($local_version)，无需更新" >> $log_path
+    else
+        echo "`date "+%Y-%m-%d %H:%M:%S"`【info】本地文件不是最新版本 ($local_version -> $latest_version)" >> $log_path
+        # download
+        download
+        /etc/init.d/navidrome stop
+        update
+        /etc/init.d/navidrome start
+    fi
+}
+
+# 下载最新版的Navidrome到临时目录
+download() {
+    download_url="https://github.com/navidrome/navidrome/releases/download/v${latest_version}/navidrome_${latest_version}_linux_amd64.tar.gz"
+
+    echo "`date "+%Y-%m-%d %H:%M:%S"`【info】正在下载 Navidrome $latest_version 到 $download_path..." >> $log_path
+    mkdir -p "$download_path"
+    curl -L "$download_url" -o "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
+    [ $? -ne 0 ] && echo "`date "+%Y-%m-%d %H:%M:%S"`【error】二进制文件下载错误，退出!" >> $log_path && exit
+    echo "`date "+%Y-%m-%d %H:%M:%S"`【info】下载完成!" >> $log_path
+}
+
+# 安装从临时目录下载的Navidrome
+update() {
+    echo "`date "+%Y-%m-%d %H:%M:%S"`【info】解压到 $Program_path..." >> $log_path
+    mkdir -p "$extraction_path"
+    mkdir -p "$(dirname "$Program_path")"
+    tar -xz -C "$extraction_path" -f "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
+    mv "$extraction_path/navidrome" "$Program_path"
+    echo "`date "+%Y-%m-%d %H:%M:%S"`【info】Navidrome $latest_version 更新完成!" >> $log_path
+    # 清理：删除临时下载和解压目录
+    rm -rf "$download_path" "$extraction_path"
+}
+
+if [ "$1" == "download" ]; then
+	[ -f $Program_path ] && return 0
+	latest_version=$(get_latest_version)
+	download
+	update
+elif [ "$1" == "update" ]; then
+	latest_version=$(get_latest_version)
+	compare_versions
+elif [ "$1" == "clear_log" ]; then
+	> $log_path
+fi
+
