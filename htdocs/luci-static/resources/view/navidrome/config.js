@@ -47,7 +47,7 @@ return view.extend({
 			m, s, o,
 			programPath = '/usr/share/navidrome/navidrome';
 
-		m = new form.Map('navidrome', _('navidrome'), _('Welcome to luci-app-navidrome!<br /><br />If you encounter any issues while using it, please submit them here:') + '<a href="https://github.com/tty228/luci-app-navidrome" target="_blank">' + _('GitHub Project Address') + '</a>');
+		m = new form.Map('navidrome', _('navidrome'), _('Welcome to luci-app-navidrome!<br /><br />If you encounter any issues while using it, please submit them here:') + '<a href="https://github.com/tty228/luci-app-navidrome" target="_blank">' + _(' GitHub Project Address') + '</a>' + _('<br />If you want to learn more about the meanings of the setup options, please click here:') + '<a href="https://www.navidrome.org/docs/usage/configuration-options/#available-options">' + _(' Navidrome Configuration Options') + '</a>');
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
@@ -74,6 +74,11 @@ return view.extend({
 
 		// 基本设置
 		o = s.option(form.Flag, 'Enable', _('Enabled'));
+
+		o = s.option(form.Value, "Program_path", _("Program path"))
+		o.rmempty = false
+		o.placeholder = "/usr/share/navidrome/navidrome"
+		o.description = _("The binary file size is approximately 30MB to 40MB. If your space is limited, save it to the tmp directory or an external disk.")
 
 		o = s.option(form.Value, "MusicFolder", _("MusicFolder"))
 		o.rmempty = false

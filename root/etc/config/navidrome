@@ -1,11 +1,13 @@
 
 config navidrome 'config'
 	option MusicFolder '/opt/music'
-	option DataFolder '/etc/navidrome'
-	option CacheFolder '/tmp/navidrome'
+	option DataFolder '/opt/navidrome'
+	option CacheFolder '/opt/navidrome/cache'
 	option ScanSchedule '@every 24h'
-	option TranscodingCacheSize '150MiB'
+	option TranscodingCacheSize '100MB'
+	option ImageCacheSize '100MB'
 	option Address '0.0.0.0'
 	option Port '4533'
 	option LogLevel 'warn'
+	option Program_path '/usr/share/navidrome/navidrome'
 

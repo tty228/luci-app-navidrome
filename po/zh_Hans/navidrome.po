@@ -33,6 +33,14 @@ msgstr "程序开关"
 msgid "MusicFolder"
 msgstr "音乐目录"
 
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:78
+msgid "Program path"
+msgstr "二进制文件路径"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:81
+msgid "The binary file size is approximately 30MB to 40MB. If your space is limited, save it to the tmp directory or an external disk."
+msgstr "二进制文件大小约 30MB~40MB，如果你的空间较小，请保存到 tmp 目录或外部磁盘"
+
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:82
 msgid "ScanSchedule"
 msgstr "扫描时间间隔"
