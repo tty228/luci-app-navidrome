@@ -1,0 +1,69 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=90
+USE_PROCD=1
+
+child_pid="/var/run/navidrome.pid"
+
+get_config() {
+    config_load navidrome
+    config_get Enable 'config' 'Enable'
+    config_get MusicFolder 'config' 'MusicFolder'
+    #config_get DataFolder 'config' 'DataFolder'
+    config_get CacheFolder 'config' 'CacheFolder'
+    config_get ScanSchedule 'config' 'ScanSchedule'
+    config_get TranscodingCacheSize 'config' 'TranscodingCacheSize'
+    config_get Address 'config' 'Address'
+    config_get Port 'config' 'Port'
+    #config_get LogLevel 'config' 'LogLevel'
+
+}
+start_service() {
+	get_config
+	procd_open_instance
+	if [ -n "$Enable" ] && [ "$Enable" -eq 1 ];then
+		# 创建目录
+        mkdir -p /tmp/navidrome/
+        # 生成配置文件
+		cat <<EOF > /tmp/navidrome/navidrome.toml
+MusicFolder = "$MusicFolder"
+DATAFOLDER = "/etc/navidrome"
+CACHEFOLDER = "$CacheFolder"
+ScanSchedule = '$ScanSchedule'
+TranscodingCacheSize = '$TranscodingCacheSize'
+ADDRESS = "$Address"
+PORT = "$Port"
+LogLevel = 'error'
+EOF
+		# 启动 navidrome
+		procd_set_param command /usr/share/navidrome/navidrome --configfile "/tmp/navidrome/navidrome.toml" > /dev/null 2>&1
+		# 记录进程 PID
+		echo $! > $child_pid
+		echo "Started navidrome process."
+	fi
+	procd_close_instance
+}
+
+stop_service() {
+    [ -f "$child_pid" ] && parent_pid=$(cat $child_pid)
+    [ -n "$parent_pid" ] && {
+        child_pids=$(pgrep -P $parent_pid)
+        echo "Terminating child processes of navidrome..."
+        for child_pid in $child_pids; do
+            kill $child_pid
+        done
+    }
+    echo "Terminating navidrome process..."
+}
+
+reload_service() {
+	stop
+	sleep 1
+	start
+}
+
+service_triggers() {
+	procd_add_reload_trigger navidrome
+}
+
