@@ -5,39 +5,51 @@ STOP=90
 USE_PROCD=1
 
 child_pid="/var/run/navidrome.pid"
+config_file="/etc/navidrome/navidrome.toml"
 
 get_config() {
     config_load navidrome
     config_get Enable 'config' 'Enable'
-    config_get MusicFolder 'config' 'MusicFolder'
-    #config_get DataFolder 'config' 'DataFolder'
-    config_get CacheFolder 'config' 'CacheFolder'
-    config_get ScanSchedule 'config' 'ScanSchedule'
-    config_get TranscodingCacheSize 'config' 'TranscodingCacheSize'
-    config_get Address 'config' 'Address'
-    config_get Port 'config' 'Port'
-    #config_get LogLevel 'config' 'LogLevel'
 
+    modify_config "MusicFolder"
+	modify_config "DataFolder"
+	modify_config "CacheFolder"
+	modify_config "ScanSchedule"
+	modify_config "ImageCacheSize"
+	modify_config "TranscodingCacheSize"
+	modify_config "Address"
+	modify_config "Port"
+	modify_config "LogLevel"
+	if [ -z "$Enable" ] || [ "$Enable" -eq 0 ]; then
+		echo "Navidrome is not enabled. Exiting..."
+		return 1
+	fi
+	if [ ! "$(ls -A $DataFolder)" ]; then
+        echo "DataFolder is empty. Exiting..."
+        exit 1
+    fi
+
+	return 0
 }
+
+modify_config() {
+    local config_name="$1"
+    local config_value=$(uci get navidrome.config."$config_name")
+
+    # 删除旧的配置项
+    sed -i "/^$config_name /d" "$config_file"
+
+    # 写入新的配置项
+    echo "$config_name = '$config_value'" >> "$config_file"
+}
+
 start_service() {
-	get_config
 	procd_open_instance
-	if [ -n "$Enable" ] && [ "$Enable" -eq 1 ];then
-		# 创建目录
-        mkdir -p /tmp/navidrome/
-        # 生成配置文件
-		cat <<EOF > /tmp/navidrome/navidrome.toml
-MusicFolder = "$MusicFolder"
-DATAFOLDER = "/etc/navidrome"
-CACHEFOLDER = "$CacheFolder"
-ScanSchedule = '$ScanSchedule'
-TranscodingCacheSize = '$TranscodingCacheSize'
-ADDRESS = "$Address"
-PORT = "$Port"
-LogLevel = 'error'
-EOF
+	get_config
+	if [ $? -eq 0 ];then
+		
 		# 启动 navidrome
-		procd_set_param command /usr/share/navidrome/navidrome --configfile "/tmp/navidrome/navidrome.toml" > /dev/null 2>&1
+		procd_set_param command /usr/share/navidrome/navidrome --configfile "/etc/navidrome/navidrome.toml" > /dev/null 2>&1
 		# 记录进程 PID
 		echo $! > $child_pid
 		echo "Started navidrome process."

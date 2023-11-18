@@ -1,0 +1,101 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-11-18 18:00+0000\n"
+"Last-Translator: https://github.com/tty228/luci-app-navidrome \n"
+"Language-Team: \n"
+"Language: zh_Hans\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Weblate 4.18-dev\n"
+
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:50
+msgid "Welcome to luci-app-navidrome!<br /><br />If you encounter any issues while using it, please submit them here:"
+msgstr "欢迎使用 luci-app-navidrome。<br /><br />如果你在使用中遇到问题，请到这里提交："
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:50
+msgid " GitHub Project Address"
+msgstr " GitHub 项目地址"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:50
+msgid "<br />If you want to learn more about the meanings of the setup options, please click here:"
+msgstr "<br />如果你想了解更多关于设置选项的含义，请点击这里："
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:50
+msgid " Navidrome Configuration Options"
+msgstr " Navidrome 配置选项"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:76
+msgid "Enabled"
+msgstr "程序开关"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:78
+msgid "MusicFolder"
+msgstr "音乐目录"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:82
+msgid "ScanSchedule"
+msgstr "扫描时间间隔"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:85
+msgid "Music library scan interval, to fully disable it, set it to 0."
+msgstr "音乐库扫描时间间隔，要完全禁用它，请将其设置为 0"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:87
+msgid "DataFolder"
+msgstr "数据库目录"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:90
+msgid "If your available space is limited, use an external disk. To avoid unsuccessful disk mounting, the program will not run when the directory is empty."
+msgstr "如果你的可用空间较小，请使用外部磁盘，为避免磁盘挂载未成功，当目录为空时程序不会运行"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:92
+msgid "CacheFolder"
+msgstr "缓存文件目录"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:96
+msgid "ImageCacheSize"
+msgstr "图像缓存大小"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:99
+msgid "The size of the image (artwork) cache, to fully disable it, set it to 0."
+msgstr "图像（艺术作品）缓存的大小，要完全禁用它，请将其设置为 0"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:101
+msgid "TranscodingCacheSize"
+msgstr "转码缓存大小"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:104
+msgid "The size of the transcoding cache, to fully disable it, set it to 0."
+msgstr "转码缓存的大小，要完全禁用它，请将其设置为 0"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:106
+msgid "Address"
+msgstr "监听地址"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:110
+msgid "Port"
+msgstr "监听端口号"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:116
+msgid "LogLevel"
+msgstr "日志等级"
+
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:75
+msgid "Clear Logs..."
+msgstr "清除日志..."
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:75
+msgid "Logs cleared successfully!"
+msgstr "日志清除成功！"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:81
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:91
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:95
+msgid "Clear Logs"
+msgstr "清除日志"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:124
+msgid "Refresh every 5 seconds."
+msgstr "每 5 秒刷新"
