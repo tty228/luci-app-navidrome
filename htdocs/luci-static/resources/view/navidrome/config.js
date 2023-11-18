@@ -4,6 +4,7 @@
 'require rpc';
 'require uci';
 'require view';
+'require fs';
 
 var callServiceList = rpc.declare({
 	object: 'service',
@@ -79,6 +80,14 @@ return view.extend({
 		o.rmempty = false
 		o.placeholder = "/usr/share/navidrome/navidrome"
 		o.description = _("The binary file size is approximately 30MB to 40MB. If your space is limited, save it to the tmp directory or an external disk.")
+
+		o = s.option(form.Button, '_update', _('update'));
+		o.inputstyle = 'add';
+		o.onclick = function () {
+			fs.exec('/usr/libexec/navidrome-call', ['update']);
+			// 立即跳转到日志页面
+			window.location.href = '/cgi-bin/luci/admin/services/navidrome/log';
+		};
 
 		o = s.option(form.Value, "MusicFolder", _("MusicFolder"))
 		o.rmempty = false

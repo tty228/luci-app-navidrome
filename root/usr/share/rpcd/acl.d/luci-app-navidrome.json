@@ -4,7 +4,6 @@
 		"read": {
 			"file": {
 				"/etc/init.d/navidrome": [ "exec" ],
-				"/usr/share/navidrome/navidrome": [ "exec" ],
 				"/tmp/navidrome/*": [ "read" ],
 				"/usr/libexec/navidrome-call": [ "exec" ]
 			},
@@ -15,7 +14,8 @@
 		},
 		"write": {
 			"file": {
-				"/tmp/navidrome/*": [ "write" ]
+				"/tmp/navidrome/*": [ "write" ],
+				"/etc/navidrome/navidrome.toml": [ "write" ]
 			},
 			"uci": [ "navidrome" ]
 		}
