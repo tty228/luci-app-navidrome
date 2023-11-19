@@ -51,28 +51,29 @@ return view.extend({
 			noweb = uci.get(data[0], 'config', 'noweb') || '0';
 		var	m, s, o,
 			programPath = '/usr/share/navidrome/navidrome';
-
-		m = new form.Map('navidrome', _('Navidrome'), _('Welcome to luci-app-navidrome!<br />For more information, please visit:<br />') + '<a href="https://github.com/navidrome/navidrome/" target="_blank">' + _('Navidrome') + '</a>' + _('<br />') + '<a href="https://github.com/tty228/luci-app-navidrome" target="_blank">' + _('luci-app-navidrome<br />') + '</a>');
+			m = new form.Map('navidrome', '', '<div style="font-size: 30px; color: #333; font-family: Arial, sans-serif; font-weight: bold; margin-bottom: 15px;">Navidrome</div>' + '<div style="font-size: 12px; line-height: 2; color: #666; font-family: Arial, sans-serif; margin-bottom: 20px;">' + _('Welcome to luci-app-navidrome!<br />For more information, please visit:<br />') + '<a style="color: #007BFF; text-decoration: none; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif; display: block;" href="https://github.com/navidrome/navidrome/" target="_blank">' + _('Navidrome') + '</a>' + '<a style="color: #007BFF; text-decoration: none; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif; display: block;" href="https://github.com/tty228/luci-app-navidrome" target="_blank">' + _('luci-app-navidrome<br />') + '</a>'+ '</div>');
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
 		s.render = function () {
-		var statusView = E('p', { id: 'service_status' }, _('Collecting data ...'));
-		poll.add(function () {
-			return L.resolveDefault(getServiceStatus()).then(function (res) {
-				var view = document.getElementById('service_status');
-				statusView.innerHTML = renderStatus(res, listen_port, noweb);
+			var statusView = E('p', { id: 'service_status' }, _('Collecting data ...'));
+			poll.add(function () {
+				return L.resolveDefault(getServiceStatus()).then(function (res) {
+					var view = document.getElementById('service_status');
+					statusView.innerHTML = renderStatus(res, listen_port, noweb);
+				});
 			});
-		});
 
-		setTimeout(function () {
-			poll.start();
-		}, 100);
+			setTimeout(function () {
+				poll.start();
+			}, 100);
 
-		return E('div', { class: 'cbi-section', id: 'status_bar' }, [
-			statusView
+			// 增加 margin-bottom 样式来调整间距，并添加细线分隔符
+			return E('div', { class: 'cbi-section', id: 'status_bar', style: 'margin-bottom: 20px;' }, [
+				statusView,
+				E('hr', { style: 'border-top: 0px solid #dddddd; margin-top: 15px; margin-bottom: 15px;' })  // 细线分隔符
 			]);
-		}
+		};
 
 		s = m.section(form.NamedSection, 'config', 'navidrome', _(''));
 		s.addremove = false;

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # 设置变量
 Program_path=$(uci get navidrome.config.Program_path)
