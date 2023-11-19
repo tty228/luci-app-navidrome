@@ -8,13 +8,13 @@ log_path="/tmp/navidrome/navidrome.log"
 child_pid_path="/var/run/navidrome.pid"
 log_pid_path="/var/run/navidrome-call-log.pid"
 update_pid_path="/var/run/navidrome-call-update.pid"
-log_log_max_lines=1500
+log_log_max_lines=1000
 log_retain_lines=500
 
 # 从GitHub获取最新发布版的版本号
 get_latest_version() {
     local latest_version
-    latest_version=$(curl --connect-timeout 10 -sL https://api.github.com/repos/navidrome/navidrome/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' | sed 's/^v//')
+    latest_version=$(curl --connect-timeout 30 -sL https://api.github.com/repos/navidrome/navidrome/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' | sed 's/^v//')
 
     # 检查获取版本的命令是否成功
     if [ $? -ne 0 ]; then
@@ -67,7 +67,7 @@ download() {
 
 	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】正在下载 Navidrome $latest_version 到 $download_path..." >> $log_path
 	mkdir -p "$download_path"
-	curl -L --connect-timeout 10 "$download_url" -o "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
+	curl -L --connect-timeout 30 "$download_url" -o "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
 
 	local RETVAL=$?
 	if [ $RETVAL -ne 0 ]; then

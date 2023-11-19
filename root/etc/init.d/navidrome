@@ -67,12 +67,6 @@ start_service() {
 			# 记录进程 PID
 			echo $! > $child_pid_path
 			echo "Started navidrome process."
-			/usr/libexec/navidrome-call log_truncate
-		else
-			# 启动时自动下载可能会因为代理或网络未正常运行，导致下载时间过长
-			# 如下载时间过长，会造成无法退出主进程，暂时弃用自动下载
-			#/usr/libexec/navidrome-call update
-			echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】${Program_path} not exist. Exiting..." >> $log_path
 		fi
 	fi
 	procd_close_instance
@@ -88,3 +82,7 @@ service_triggers() {
 	procd_add_reload_trigger navidrome
 }
 
+if get_config; then
+	[ -f "$Program_path" ] && /usr/libexec/navidrome-call log_truncate
+	[ ! -f "$Program_path" ] && /usr/libexec/navidrome-call update
+fi

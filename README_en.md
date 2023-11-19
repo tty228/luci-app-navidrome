@@ -2,7 +2,11 @@
 
 [Chinese Documentation](README.md) | [English](README_en.md)
 
-Run Navidrome directly on OpenWrt routers, without using Docker.
+Installing Docker on OpenWrt can cause TPROXY transparent proxy to fail, thus affecting UDP proxy.
+
+However, the official Navidrome release includes binary executable files that can be run directly on OpenWrt.
+
+Here, a LuCI interface for Navidrome binary files is provided for easy setup and installation.
 
 ## Features
 
@@ -11,12 +15,12 @@ Run Navidrome directly on OpenWrt routers, without using Docker.
 - [x] More configuration options
 - [x] Multi-language support
 - [x] Log display
-- [ ] Download binaries based on model
+- [x] Download binaries based on model
+- [x] transcoding(please install ffmpeg manually)
 
 ## Instructions
 
 - This is the initial version, and there may be some unexpected errors. Use with caution.
-- If transcoding is needed, please install ffmpeg manually (not tested).
 
 ## Download
 
