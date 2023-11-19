@@ -5,6 +5,8 @@ STOP=90
 USE_PROCD=1
 
 child_pid_path="/var/run/navidrome.pid"
+log_pid_path="/var/run/navidrome-call-log.pid"
+update_pid_path="/var/run/navidrome-call-update.pid"
 config_path="/etc/navidrome/navidrome.toml"
 log_path="/tmp/navidrome/navidrome.log"
 mkdir -p "$(dirname "$log_path")"
@@ -12,6 +14,7 @@ mkdir -p "$(dirname "$log_path")"
 get_config() {
 	config_load navidrome
 	config_get Enable 'config' 'Enable'
+	config_get Program_path 'config' 'Program_path'
 	config_get MusicFolder 'config' 'MusicFolder'
 	config_get DataFolder 'config' 'DataFolder'
 	config_get CacheFolder 'config' 'CacheFolder'
@@ -57,14 +60,21 @@ modify_config() {
 
 start_service() {
 	procd_open_instance
-	get_config && /usr/libexec/navidrome-call download && {
-		# 启动 navidrome
-		procd_set_param command sh -c "/usr/share/navidrome/navidrome --configfile $config_path > $log_path 2>&1"
-		# 记录进程 PID
-		echo $! > $child_pid_path
-		echo "Started navidrome process."
-		/usr/libexec/navidrome-call log_truncate
-	}
+	if get_config; then
+		if [ -f "$Program_path" ];then
+			# 启动 navidrome
+			procd_set_param command sh -c "${Program_path} --configfile ${config_path} > $log_path 2>&1"
+			# 记录进程 PID
+			echo $! > $child_pid_path
+			echo "Started navidrome process."
+			/usr/libexec/navidrome-call log_truncate
+		else
+			# 启动时自动下载可能会因为代理或网络未正常运行，导致下载时间过长
+			# 如下载时间过长，会造成无法退出主进程，暂时弃用自动下载
+			#/usr/libexec/navidrome-call update
+			echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】${Program_path} not exist. Exiting..." >> $log_path
+		fi
+	fi
 	procd_close_instance
 }
 

@@ -1,14 +1,28 @@
-#!/bin/sh
+#!/bin/bash
 
 # 设置变量
 Program_path=$(uci get navidrome.config.Program_path)
 download_path="/tmp/navidrome/download"
 extraction_path="/tmp/navidrome/extraction"
 log_path="/tmp/navidrome/navidrome.log"
+child_pid_path="/var/run/navidrome.pid"
+log_pid_path="/var/run/navidrome-call-log.pid"
+update_pid_path="/var/run/navidrome-call-update.pid"
+log_log_max_lines=1500
+log_retain_lines=500
 
 # 从GitHub获取最新发布版的版本号
 get_latest_version() {
-	curl -sL https://api.github.com/repos/navidrome/navidrome/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' | sed 's/^v//'
+    local latest_version
+    latest_version=$(curl --connect-timeout 10 -sL https://api.github.com/repos/navidrome/navidrome/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' | sed 's/^v//')
+
+    # 检查获取版本的命令是否成功
+    if [ $? -ne 0 ]; then
+        echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】获取最新版本号失败" >> $log_path
+        exit 1
+    fi
+
+    echo "$latest_version"
 }
 
 # 获取本地文件的版本号
@@ -18,23 +32,6 @@ get_local_version() {
 		echo "$local_version"
 	else
 		echo "0.0.0"  # 如果本地文件不存在
-	fi
-}
-
-# 比较本地版本和最新版本
-compare_versions() {
-	local_version=$(get_local_version)
-
-	if [ "$local_version" == "$latest_version" ]; then
-		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】本地文件已经是最新版本 ($local_version)，无需更新" >> $log_path
-		exit 2
-	else
-		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】本地文件不是最新版本 ($local_version -> $latest_version)" >> $log_path
-		# download
-		download
-		/etc/init.d/navidrome stop
-		update
-		/etc/init.d/navidrome start
 	fi
 }
 
@@ -70,30 +67,60 @@ download() {
 
 	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】正在下载 Navidrome $latest_version 到 $download_path..." >> $log_path
 	mkdir -p "$download_path"
-	curl -L "$download_url" -o "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
-	[ $? -ne 0 ] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】二进制文件下载错误，退出!" >> $log_path && exit
-	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】下载完成!" >> $log_path
+	curl -L --connect-timeout 10 "$download_url" -o "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
+
+	local RETVAL=$?
+	if [ $RETVAL -ne 0 ]; then
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】二进制文件下载失败!" >> $log_path
+		rm -rf "$download_path"
+	else
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】下载完成!" >> $log_path
+	fi
 }
 
-# 安装从临时目录下载的Navidrome
-update() {
+# 解压下载的 Navidrome
+unzip() {
 	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】解压到 $Program_path..." >> $log_path
 	mkdir -p "$extraction_path"
 	mkdir -p "$(dirname "$Program_path")"
 	tar -xz -C "$extraction_path" -f "$download_path/navidrome_$latest_version_linux_amd64.tar.gz"
-	mv "$extraction_path/navidrome" "$Program_path"
-	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】Navidrome $latest_version 更新完成!" >> $log_path
+	local RETVAL=$?
+	if [ $RETVAL -ne 0 ]; then
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】二进制文件解压缩失败，退出!" >> $log_path
+	else
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】Navidrome $latest_version 更新完成!" >> $log_path
+		/etc/init.d/navidrome stop
+		sleep 1
+		mv "$extraction_path/navidrome" "$Program_path"
+		/etc/init.d/navidrome start
+	fi
 	# 清理：删除临时下载和解压目录
 	rm -rf "$download_path" "$extraction_path"
+	return $RETVAL
+}
+
+# 更新二进制文件
+update() {
+	[ -f "$update_pid_path" ] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】下载进行中或上次未正确退出，如您确定未开始下载，请重试" >> $log_path && rm -f $update_pid_path && return
+	local_version=$(get_local_version)
+	latest_version=$(get_latest_version)
+    (
+    if [ "$local_version" == "$latest_version" ]; then
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】本地文件已经是最新版本 ($local_version)，无需更新" >> $log_path
+		rm -f $update_pid_path
+		return 2
+	else
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】update ($local_version -> $latest_version)" >> $log_path
+		download
+		unzip
+	fi
+	rm -f $update_pid_path
+    ) &
+    echo $! > $update_pid_path
 }
 
 # 定时截短日志
 log_truncate() {
-	log_path="/tmp/navidrome/navidrome.log"
-	log_pid_path="/var/run/log_navidrome.pid"
-	child_pid_path="/var/run/navidrome.pid"
-	log_log_max_lines=1500
-	log_retain_lines=500
 	[ -f "$log_pid_path" ] && return
 	(
 		while true; do
@@ -105,22 +132,16 @@ log_truncate() {
 				echo "Trimmed log file to $log_retain_lines lines."
 			fi
 			if [ ! -f "$child_pid_path" ]; then
-				rm -f $log_pid_path
-				exit
+				break 
 			fi
 		done
+		rm -f $log_pid_path
 	) &
 	echo $! > $log_pid_path
 }
 
-if [ "$1" == "download" ]; then
-	[ -f $Program_path ] && return 0
-	latest_version=$(get_latest_version)
-	download
+if [ "$1" == "update" ]; then
 	update
-elif [ "$1" == "update" ]; then
-	latest_version=$(get_latest_version)
-	compare_versions &
 elif [ "$1" == "clear_log" ]; then
 	> $log_path
 elif [ "$1" == "log_truncate" ]; then
