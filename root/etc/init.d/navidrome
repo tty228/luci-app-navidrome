@@ -63,7 +63,7 @@ start_service() {
 	if get_config; then
 		if [ -f "$Program_path" ];then
 			# 启动 navidrome
-			procd_set_param command sh -c "${Program_path} --configfile ${config_path} > $log_path 2>&1"
+			procd_set_param command sh -c "${Program_path} --configfile ${config_path} >> $log_path 2>&1"
 			# 记录进程 PID
 			echo $! > $child_pid_path
 			echo "Started navidrome process."

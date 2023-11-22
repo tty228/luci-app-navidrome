@@ -17,9 +17,9 @@ get_latest_version() {
     latest_version=$(curl --connect-timeout 30 -sL https://api.github.com/repos/navidrome/navidrome/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' | sed 's/^v//')
 
     # 检查获取版本的命令是否成功
-    if [ $? -ne 0 ]; then
+    if [ $? -ne 0 ] || [ -z "$latest_version" ]; then
         echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】获取最新版本号失败" >> $log_path
-        exit 1
+        return 1
     fi
 
     echo "$latest_version"
@@ -102,9 +102,7 @@ unzip() {
 # 更新二进制文件
 update() {
 	[ -f "$update_pid_path" ] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】下载进行中或上次未正确退出，如您确定未开始下载，请重试" >> $log_path && rm -f $update_pid_path && return
-	local_version=$(get_local_version)
-	latest_version=$(get_latest_version)
-    (
+	local_version=$(get_local_version) && latest_version=$(get_latest_version) && (
     if [ "$local_version" == "$latest_version" ]; then
 		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】本地文件已经是最新版本 ($local_version)，无需更新" >> $log_path
 		rm -f $update_pid_path
