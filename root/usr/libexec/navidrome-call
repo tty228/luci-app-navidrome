@@ -129,11 +129,7 @@ log_truncate() {
 				mv "$log_path.tmp" "$log_path"
 				echo "Trimmed log file to $log_retain_lines lines."
 			fi
-			if [ ! -f "$child_pid_path" ]; then
-				break 
-			fi
 		done
-		rm -f $log_pid_path
 	) &
 	echo $! > $log_pid_path
 }

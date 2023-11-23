@@ -67,9 +67,24 @@ start_service() {
 			# 记录进程 PID
 			echo $! > $child_pid_path
 			echo "Started navidrome process."
+		else
+			procd_set_param command sh -c "/usr/libexec/navidrome-call update"
 		fi
 	fi
 	procd_close_instance
+}
+
+stop_service() {
+    [ -f "$log_pid_path" ] && parent_pid=$(cat $log_pid_path)
+    [ -n "$parent_pid" ] && {
+        child_pids=$(pgrep -P $parent_pid)
+        kill $parent_pid
+        for child_pid in $child_pids; do
+            kill $child_pid
+        done
+        rm -f $log_pid_path
+        echo "Log truncation process stopped"
+    }
 }
 
 reload_service() {
@@ -84,5 +99,4 @@ service_triggers() {
 
 if get_config; then
 	[ -f "$Program_path" ] && /usr/libexec/navidrome-call log_truncate
-	[ ! -f "$Program_path" ] && /usr/libexec/navidrome-call update
 fi
