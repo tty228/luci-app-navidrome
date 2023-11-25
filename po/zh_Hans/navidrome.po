@@ -25,6 +25,10 @@ msgstr "欢迎使用 luci-app-navidrome！<br />更多信息，请访问："
 msgid "Enabled"
 msgstr "程序开关"
 
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:107
+msgid "Core Files Missing"
+msgstr "核心文件缺失"
+
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:78
 msgid "MusicFolder"
 msgstr "音乐目录"

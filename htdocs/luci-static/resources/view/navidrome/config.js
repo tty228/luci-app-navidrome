@@ -24,33 +24,43 @@ function getServiceStatus() {
 	});
 }
 
-function renderStatus(isRunning, listen_port, noweb) {
+function renderStatus(isRunning, listen_port, noweb, localVersion) {
 	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
 	var renderHTML;
 	if (isRunning) {
-		renderHTML = spanTemp.format('green', _('navidrome'), _('RUNNING'));
-		if (noweb !== '1')
-			renderHTML+= String.format('&#160;<a class="btn cbi-button" href="%s:%s" target="_blank" rel="noreferrer noopener">%s</a>',
-				window.location.origin, listen_port, _('Open Web Interface'));
+    if (localVersion !== "0.0.0") {
+        renderHTML = spanTemp.format('green', _('navidrome'), _('RUNNING'));
+
+        // 判断如果 localVersion 不为 "0.0.0"，则添加 Web 接口链接
+        if (noweb !== '1') {
+            renderHTML += String.format('&#160;<a class="btn cbi-button" href="%s:%s" target="_blank" rel="noreferrer noopener">%s</a>',
+                window.location.origin, listen_port, _('Open Web Interface'));
+			}
+		} else {
+			renderHTML = spanTemp.format('green', _('navidrome'), _('Downloading...'));
+		}
 	} else {
 		renderHTML = spanTemp.format('red', _('navidrome'), _('NOT RUNNING'));
 	}
-
 	return renderHTML;
 }
 
 return view.extend({
 	load: function() {
 		return Promise.all([
-			uci.load('navidrome')
+			uci.load('navidrome'),
+            fs.exec('/usr/libexec/navidrome-call', ['get_local_version']).then(function(res) { return res.stdout.trim(); })
 		]);
 	},
 
 	render: function (data) {
 		var listen_port = (uci.get(data[0], 'config', 'Port') || '4533'),
 			noweb = uci.get(data[0], 'config', 'noweb') || '0';
-		var	m, s, o,
-			programPath = '/usr/share/navidrome/navidrome';
+		var	m, s, o;
+		var localVersion = '?';
+		if (data[1]) {
+            localVersion = data[1].trim();
+        }
 			m = new form.Map('navidrome', '', '<div style="font-size: 30px; color: #333; font-family: Arial, sans-serif; font-weight: bold; margin-bottom: 15px;">Navidrome</div>' + '<div style="font-size: 12px; line-height: 2; color: #666; font-family: Arial, sans-serif; margin-bottom: 20px;">' + _('Welcome to luci-app-navidrome!<br />For more information, please visit:<br />') + '<a style="color: #007BFF; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif; display: block;" href="https://github.com/navidrome/navidrome/" target="_blank">' + _('Navidrome') + '</a>' + '<a style="color: #007BFF; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif; display: block;" href="https://github.com/tty228/luci-app-navidrome" target="_blank">' + _('luci-app-navidrome<br />') + '</a>'+ '</div>');
 
 		s = m.section(form.TypedSection);
@@ -60,7 +70,7 @@ return view.extend({
 			poll.add(function () {
 				return L.resolveDefault(getServiceStatus()).then(function (res) {
 					var view = document.getElementById('service_status');
-					statusView.innerHTML = renderStatus(res, listen_port, noweb);
+					statusView.innerHTML = renderStatus(res, listen_port, noweb, localVersion);
 				});
 			});
 
@@ -94,6 +104,7 @@ return view.extend({
 			// 立即跳转到日志页面
 			window.location.href = '/cgi-bin/luci/admin/services/navidrome/log';
 		};
+		o.description = (localVersion === "0.0.0") ? _("Core Files Missing") : _("v") + localVersion;
 
 		o = s.option(form.Value, "MusicFolder", _("MusicFolder"))
 		o.rmempty = false
