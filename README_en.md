@@ -20,7 +20,7 @@ Here, a LuCI interface for Navidrome binary files is provided for easy setup and
 
 ## Instructions
 
-- This is the initial version, and there may be some unexpected errors. Use with caution.
+
 
 ## Download
 

@@ -105,20 +105,10 @@ msgstr " Navidrome 配置选项"
 msgid "Please use the 「Save」 button in the text box."
 msgstr "文本框请使用「保存」按钮"
 
-#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:75
-msgid "Clear Logs..."
-msgstr "清除日志..."
-
-#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:75
-msgid "Logs cleared successfully!"
-msgstr "日志清除成功！"
-
-#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:81
-#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:91
-#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:95
-msgid "Clear Logs"
-msgstr "清除日志"
-
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:124
 msgid "Refresh every 5 seconds."
 msgstr "每 5 秒刷新"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/log.js:124
+msgid "Show only first 50 rows."
+msgstr "只显示前 50 行"
