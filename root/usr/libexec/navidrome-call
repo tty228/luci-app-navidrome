@@ -112,6 +112,8 @@ if [ "$1" == "update" ]; then
 	[ -e "$lock_file" ] && logger -p daemon.info -t "navidrome[${$}]" "更新正在进行中，无需启动新的更新任务。" && exit 0
 	touch "$lock_file"
 	update
+elif [ "$1" == "get_local_version" ]; then
+	get_local_version
 fi
 
 rm -f "$lock_file"
