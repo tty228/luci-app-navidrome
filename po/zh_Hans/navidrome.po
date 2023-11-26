@@ -43,7 +43,7 @@ msgstr "当前版本号："
 
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:160
 msgid "Latest version:"
-msgstr "最新版本号"
+msgstr "最新版本号："
 
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:160
 msgid "Core files missing"

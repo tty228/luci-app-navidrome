@@ -174,8 +174,9 @@ return view.extend({
 						
 						if ("v" + localVersion !== remoteVersion) {
 							_this.description = '<span style="color: #333; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif;">' + _("Current version:") + ' v' + localVersion + "<br>" +
-							_("Latest version:") + '</span>  ' + '<a style="color: #007BFF; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif;" href="https://github.com/navidrome/navidrome/releases/tag/' + remoteVersion + '" target="_blank">' + remoteVersion + '</a>';
+												_("Latest version:") + '</span>' + '<a style="color: #007BFF; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif;" href="https://github.com/navidrome/navidrome/releases/tag/' + remoteVersion + '" target="_blank">' + ' ' + remoteVersion + '</a>';
 							_this.onclick = updateAndRedirect;
+							_this.title = _("Click to download");
 						} else {
 							_this.description = _("Current version:") + ' v' + localVersion + ' ' + _("Up to date, no update needed.");
 						}
