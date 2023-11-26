@@ -13,7 +13,7 @@ PKG_CONFIG_DEPENDS:= \
 
 LUCI_TITLE:=Your Personal Streaming Service
 LUCI_PKGARCH:=all
-LUCI_DEPENDS:= \
+LUCI_DEPENDS:=+zoneinfo-all \
         +PACKAGE_$(PKG_NAME)_Enable_Transcoding:ffmpeg
 
 define Package/$(PKG_NAME)/config
