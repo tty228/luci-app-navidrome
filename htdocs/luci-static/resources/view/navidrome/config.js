@@ -5,6 +5,7 @@
 'require uci';
 'require view';
 'require fs';
+'require ui';
 
 var callServiceList = rpc.declare({
 	object: 'service',
@@ -61,7 +62,11 @@ return view.extend({
 		if (data[1]) {
             localVersion = data[1].trim();
         }
-			m = new form.Map('navidrome', '', '<div style="font-size: 30px; color: #333; font-family: Arial, sans-serif; font-weight: bold; margin-bottom: 15px;">Navidrome</div>' + '<div style="font-size: 12px; line-height: 2; color: #666; font-family: Arial, sans-serif; margin-bottom: 20px;">' + _('Welcome to luci-app-navidrome!<br />For more information, please visit:<br />') + '<a style="color: #007BFF; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif; display: block;" href="https://github.com/navidrome/navidrome/" target="_blank">' + _('Navidrome') + '</a>' + '<a style="color: #007BFF; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif; display: block;" href="https://github.com/tty228/luci-app-navidrome" target="_blank">' + _('luci-app-navidrome<br />') + '</a>'+ '</div>');
+			m = new form.Map('navidrome', '', '<div style="font-size: 30px; color: #333; font-family: Arial, sans-serif; font-weight: bold; margin-bottom: 15px;">Navidrome</div>' + '<div style="font-size: 12px; line-height: 2; color: #666; font-family: Arial, sans-serif; margin-bottom: 20px;">' +
+				_('Welcome to luci-app-navidrome!') + "<br>" + 
+				_('For more information, please visit:') + "<br>" + 
+				'<a style="color: #007BFF; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif; display: block;" href="https://github.com/navidrome/navidrome/" target="_blank">' + _('Navidrome') + '</a>' + 
+				'<a style="color: #007BFF; font-size: 14px; line-height: 1.5; font-family: Arial, sans-serif; display: block;" href="https://github.com/tty228/luci-app-navidrome" target="_blank">' + _('luci-app-navidrome') + "<br>" + '</a>' + '</div>');
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
@@ -97,14 +102,88 @@ return view.extend({
 		o.placeholder = "/usr/share/navidrome/navidrome"
 		o.description = _("The binary file size is approximately 30MB to 40MB. If your space is limited, save it to the tmp directory or an external disk.")
 
-		o = s.option(form.Button, '_update', _('update'));
+		// 定义更新并跳转到日志页面的函数
+		function updateAndRedirect() {
+			// 创建用于显示日志的元素
+			var logContainer = E('pre'); // 使用 <pre> 元素保留文本中的换行符
+
+			// 显示模态框，包含手动关闭按钮
+			var modal = ui.showModal(_('Updating'), [
+				logContainer, // 将 logContainer 添加到模态框中
+				E('div', { 'class': 'right' }, [
+					E('button', {
+						'class': 'cbi-button cbi-button-primary',
+						'click': function () {
+							// 清除定时器
+							clearInterval(logUpdateInterval);
+							ui.hideModal(modal);
+							//console.log('Timer cleared.');
+						}
+					}, [ _('Dismiss') ])
+				])
+			]);
+
+			// 定义读取日志内容的函数
+			function readLogContent() {
+				// 读取下载日志的内容并显示在模态框中
+				fs.read('/tmp/navidrome/download.log')
+					.then(function (logContent) {
+						//console.log('Read log content:', logContent); // 添加调试信息
+						logContainer.innerText = logContent || 'No log content available.';
+					})
+					.catch(function (err) {
+						logContainer.innerText = 'Error reading log: ' + err.message;
+					});
+			}
+
+			// 设置定时器，每秒钟读取一次日志内容
+			var logUpdateInterval = setInterval(readLogContent, 1000);
+
+			// 发起更新命令
+			fs.exec('/usr/libexec/navidrome-call', ['update'])
+				.then(function () {
+					// 读取一次最终的日志内容
+					readLogContent();
+				})
+				.catch(function (err) {
+					// 更新失败时，显示通知
+					ui.addNotification(null, [
+						E('p', [ _('Update failed:'), err ])
+					]);
+				});
+		}
+
+		o = s.option(form.Button, '_update', (localVersion === "0.0.0") ? _("Click to download") : _("Check for updates"));
 		o.inputstyle = 'add';
+		o.description = (localVersion === "0.0.0") ? _("Core files missing") : _("Current version:") + 'v' + localVersion;
+
 		o.onclick = function () {
-			fs.exec('/usr/libexec/navidrome-call', ['update']);
-			// 立即跳转到日志页面
-			window.location.href = '/cgi-bin/luci/admin/services/navidrome/log';
+			if (localVersion === "0.0.0") {
+				updateAndRedirect();
+			} else {
+				// 缓存当前上下文
+				var _this = this;
+
+				// 发起请求获取最新版本号
+				fetch('https://api.github.com/repos/navidrome/navidrome/releases/latest')
+					.then(response => response.json())
+					.then(data => {
+						// 获取最新版本号
+						var remoteVersion = data.tag_name;
+						_this.description = _("Current version:") + 'v' + localVersion + "<br>" +
+											_("Latest version:") + remoteVersion;
+
+						if ("v" + localVersion !== remoteVersion) {
+							_this.onclick = updateAndRedirect;
+						}
+						// 重新渲染
+						_this.map.save();
+					})
+					.catch(error => {
+						console.error('Error fetching remote version:', error);
+					});
+			}
 		};
-		o.description = (localVersion === "0.0.0") ? _("Core Files Missing") : _("v") + localVersion;
 
 		o = s.option(form.Value, "MusicFolder", _("MusicFolder"))
 		o.rmempty = false
@@ -165,7 +244,8 @@ return view.extend({
 				return fs.write('/etc/navidrome/navidrome.toml', formvalue.trim().replace(/\r\n/g, '\n') + '\n');
 			});
 		};
-		o.description = _('<br />If you want to learn more about the meanings of the setup options, please click here:') + '<a href="https://www.navidrome.org/docs/usage/configuration-options/#available-options" target="_blank">' + _(' Navidrome Configuration Options') + '</a>'+ _('<br/>') + _('Please use the 「Save」 button in the text box.');
+		o.description = _('<br />If you want to learn more about the meanings of the setup options, please click here:') + '<a href="https://www.navidrome.org/docs/usage/configuration-options/#available-options" target="_blank">' + _(' Navidrome Configuration Options') + '</a>'+ _('<br/>') + 
+						_('Please use the 「Save」 button in the text box.');
 
 
 		return m.render();

@@ -17,16 +17,36 @@ msgstr "设置"
 msgid "Log"
 msgstr "日志"
 
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:65
+msgid "Welcome to luci-app-navidrome!"
+msgstr "欢迎使用 luci-app-navidrome！"
+
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:50
-msgid "Welcome to luci-app-navidrome!<br />For more information, please visit:<br />"
-msgstr "欢迎使用 luci-app-navidrome！<br />更多信息，请访问："
+msgid "For more information, please visit:"
+msgstr "更多信息，请访问："
 
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:76
 msgid "Enabled"
 msgstr "程序开关"
 
-#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:107
-msgid "Core Files Missing"
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:160
+msgid "Click to download"
+msgstr "点击下载"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:160
+msgid "Check for updates"
+msgstr "检查更新"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:160
+msgid "Current version:"
+msgstr "当前版本号："
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:160
+msgid "Latest version:"
+msgstr "最新版本号"
+
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:160
+msgid "Core files missing"
 msgstr "核心文件缺失"
 
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:78

@@ -4,6 +4,7 @@
 Program_path=$(uci get navidrome.config.Program_path)
 download_path="/tmp/navidrome/download"
 extraction_path="/tmp/navidrome/extraction"
+download_log_path="/tmp/navidrome/download.log"
 lock_file="/tmp/navidrome/update.lock"
 
 # 从GitHub获取最新发布版的版本号
@@ -13,7 +14,7 @@ get_latest_version() {
 
     # 检查获取版本的命令是否成功
     if [ $? -ne 0 ] || [ -z "$latest_version" ]; then
-        logger -p daemon.error -t "navidrome[${$}]" "获取最新版本号失败"
+        echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】获取最新版本号失败" >> $download_log_path
         return 1
     fi
 
@@ -53,44 +54,53 @@ download() {
 			Arch="386"
 			;;
 		*)
-			logger -p daemon.error -t "navidrome[${$}]" "无法判断核心类型"
+			echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】无法判断核心类型" >> $download_log_path
 			EXIT 1
 			;;
 	esac
 
 	download_url="https://github.com/navidrome/navidrome/releases/download/v${latest_version}/navidrome_${latest_version}_linux_${Arch}.tar.gz"
 
-	logger -p daemon.info -t "navidrome[${$}]" "正在下载 Navidrome $latest_version 到 $download_path..."
+	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】正在下载 Navidrome $latest_version 到 ${download_path}..." >> $download_log_path
+	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】URL: ${download_url}" >> $download_log_path
 	mkdir -p "$download_path"
-	curl -L --connect-timeout 30 "$download_url" -o "$download_path/navidrome_${latest_version}_linux_amd64.tar.gz" >/dev/null 2>&1
+	curl -L --connect-timeout 30 --progress-bar "$download_url" -o "${download_path}/navidrome_${latest_version}_linux_amd64.tar.gz" > "${download_path}/curl.log" 2>&1 &
+	pid=$!  # 获取curl进程的PID
 
+	while kill -0 $pid 2>/dev/null; do
+		sleep 5
+		grep -oE '[0-9]+\.[0-9]%' "${download_path}/curl.log" | tail -n 1 >> "$download_log_path"
+		grep -E 'curl|Warning' "${download_path}/curl.log" >> "$download_log_path"
+	done
+
+	wait $pid
 	local RETVAL=$?
 	if [ $RETVAL -ne 0 ]; then
-		logger -p daemon.error -t "navidrome[${$}]" "二进制文件下载失败，请手动更新核心文件，即将退出"
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】二进制文件下载失败，请检查并重试，即将退出!" >> $download_log_path
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】清理生成的临时文件" >> $download_log_path
 		rm -rf "$download_path" "$lock_file"
-		return $RETVAL
-	else
-		logger -p daemon.info -t "navidrome[${$}]" "下载完成"
 	fi
+	return $RETVAL
 }
 
 # 解压下载的 Navidrome
 unzip() {
-	logger -p daemon.info -t "navidrome[${$}]" "解压到 $Program_path..."
+	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】解压到 ${Program_path}..." >> $download_log_path
 	mkdir -p "$extraction_path"
 	mkdir -p "$(dirname "$Program_path")"
-	tar -xz -C "$extraction_path" -f "$download_path/navidrome_${latest_version}_linux_amd64.tar.gz"
+	tar -xz -C "$extraction_path" -f "${download_path}/navidrome_${latest_version}_linux_amd64.tar.gz"
 	local RETVAL=$?
 	if [ $RETVAL -ne 0 ]; then
-		logger -p daemon.error -t "navidrome[${$}]" "二进制文件解压缩失败，请手动更新核心文件，即将退出!"
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【error】二进制文件解压缩失败，请检查并重试，即将退出!" >> $download_log_path
 	else
-		logger -p daemon.info -t "navidrome[${$}]" "Navidrome $latest_version 更新完成!"
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】$latest_version 更新完成，重启 Navidrome" >> $download_log_path
 		/etc/init.d/navidrome stop
 		sleep 1
-		mv "$extraction_path/navidrome" "$Program_path"
+		mv "${extraction_path}/navidrome" "$Program_path"
 		/etc/init.d/navidrome start
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】success.." >> $download_log_path
 	fi
-	# 清理：删除临时下载和解压目录
+	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】清理生成的临时文件" >> $download_log_path
 	rm -rf "$download_path" "$extraction_path" "$lock_file"
 	return $RETVAL
 }
@@ -99,21 +109,21 @@ unzip() {
 update() {
 	local_version=$(get_local_version) && latest_version=$(get_latest_version) && (
 		if [ "$local_version" == "$latest_version" ]; then
-			logger -p daemon.info -t "navidrome[${$}]" "本地文件已经是最新版本 ($local_version)，无需更新"
+			echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】本地文件已经是最新版本 ($local_version)，无需更新" >> $download_log_path
 			return 2
 		else
-			logger -p daemon.info -t "navidrome[${$}]" "update ($local_version -> $latest_version)"
+			echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】update ($local_version -> $latest_version)" >> $download_log_path
 			download && unzip
 		fi
     )# &
 }
 
 if [ "$1" == "update" ]; then
-	[ -e "$lock_file" ] && logger -p daemon.info -t "navidrome[${$}]" "更新正在进行中，无需启动新的更新任务。" && exit 0
+	[ -e "$lock_file" ] && exit 0
+	[ ! -e "$lock_file" ] && tail -n 5 "$download_log_path" > "${download_log_path}.tmp" && mv "${download_log_path}.tmp" "$download_log_path" && echo "--------------------------------------------------" >> "$download_log_path"
 	touch "$lock_file"
 	update
+	rm -f "$lock_file"
 elif [ "$1" == "get_local_version" ]; then
 	get_local_version
 fi
-
-rm -f "$lock_file"
