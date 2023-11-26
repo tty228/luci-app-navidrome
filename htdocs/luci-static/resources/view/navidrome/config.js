@@ -115,9 +115,10 @@ return view.extend({
 						'class': 'cbi-button cbi-button-primary',
 						'click': function () {
 							// 清除定时器
-							clearInterval(logUpdateInterval);
-							ui.hideModal(modal);
+							//clearInterval(logUpdateInterval);
+							//ui.hideModal(modal);
 							//console.log('Timer cleared.');
+							location.reload();
 						}
 					}, [ _('Dismiss') ])
 				])
@@ -155,7 +156,7 @@ return view.extend({
 
 		o = s.option(form.Button, '_update', (localVersion === "0.0.0") ? _("Click to download") : _("Check for updates"));
 		o.inputstyle = 'add';
-		o.description = (localVersion === "0.0.0") ? _("Core files missing") : _("Current version:") + 'v' + localVersion;
+		o.description = (localVersion === "0.0.0") ? _("Core files missing") : _("Current version:") + ' v' + localVersion;
 
 		o.onclick = function () {
 			if (localVersion === "0.0.0") {
@@ -170,11 +171,13 @@ return view.extend({
 					.then(data => {
 						// 获取最新版本号
 						var remoteVersion = data.tag_name;
-						_this.description = _("Current version:") + 'v' + localVersion + "<br>" +
-											_("Latest version:") + remoteVersion;
-
+						
 						if ("v" + localVersion !== remoteVersion) {
+							_this.description = _("Current version:") + ' v' + localVersion + "<br>" +
+											_("Latest version:") + remoteVersion;
 							_this.onclick = updateAndRedirect;
+						} else {
+							_this.description = _("Current version:") + ' v' + localVersion + ' ' + _("Up to date, no update needed.");
 						}
 						// 重新渲染
 						_this.map.save();

@@ -49,6 +49,10 @@ msgstr "最新版本号"
 msgid "Core files missing"
 msgstr "核心文件缺失"
 
+#: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:180
+msgid "Up to date, no update needed."
+msgstr "已是最新，无需更新"
+
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:78
 msgid "MusicFolder"
 msgstr "音乐目录"
