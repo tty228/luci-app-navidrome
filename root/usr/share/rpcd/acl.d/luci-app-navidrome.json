@@ -1,24 +1,25 @@
 {
-	"luci-app-navidrome": {
-		"description": "Grant UCI access for luci-app-navidrome",
-		"read": {
-			"file": {
-				"/etc/init.d/navidrome": [ "exec" ],
-				"/usr/libexec/navidrome-call": [ "exec" ],
-				"/tmp/navidrome/*": [ "read" ],
-				"/etc/navidrome/navidrome.toml": [ "read" ]
-			},
-			"ubus": {
-				"service": [ "list" ]
-			},
-			"uci": [ "navidrome" ]
-		},
-		"write": {
-			"file": {
-				"/tmp/navidrome/*": [ "write" ],
-				"/etc/navidrome/navidrome.toml": [ "write" ]
-			},
-			"uci": [ "navidrome" ]
-		}
-	}
+    "luci-app-navidrome": {
+        "description": "Grant UCI access for luci-app-navidrome",
+        "read": {
+            "file": {
+                "/etc/init.d/navidrome": [ "exec" ],
+                "/usr/libexec/navidrome-call": [ "exec" ],
+                "/tmp/navidrome/*": [ "read" ],
+                "/etc/navidrome/navidrome.toml": [ "read" ],
+                "/sbin/logread": [ "exec" ]
+            },
+            "ubus": {
+                "service": [ "list" ]
+            },
+            "uci": [ "navidrome" ]
+        },
+        "write": {
+            "file": {
+                "/tmp/navidrome/*": [ "write" ],
+                "/etc/navidrome/navidrome.toml": [ "write" ]
+            },
+            "uci": [ "navidrome" ]
+        }
+    }
 }
