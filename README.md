@@ -2,11 +2,7 @@
 
 [中文文档](README.md) | [English](README_en.md)
 
-在 OpenWrt 上安装 Docker 会导致 TPROXY 透明代理失效，从而影响 UDP 代理。
-
-但 Navidrome 官方提供了二进制执行文件，可以直接在 OpenWrt 上运行。
-
-这里提供了 Navidrome 二进制文件的 LuCI 界面，以方便设置和安装。
+用于 OpenWrt 上运行 [Navidrome](https://github.com/navidrome/navidrome/) 的 LuCI 界面
 
 ## 功能
 
@@ -20,7 +16,11 @@
 
 ## 说明
 
+在 OpenWrt 上安装 Docker 会导致 TPROXY 透明代理失效，从而影响 UDP 代理。
 
+但 Navidrome 官方提供了二进制执行文件，可以直接在 OpenWrt 上运行。
+
+这里提供了  二进制文件的 LuCI 界面，以方便设置和安装。
 
 ## 下载
 

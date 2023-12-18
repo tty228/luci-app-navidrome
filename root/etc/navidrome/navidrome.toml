@@ -1,12 +1,31 @@
 # This is just an example! Please see available options to customize Navidrome for your needs at
 # https://www.navidrome.org/docs/usage/configuration-options/#available-options
 
+# 默认语言相关
+# Web 端默认语言
+#DefaultLanguage = "zh-Hans"
+# 歌手简介默认语言
+#LastFM.Language= "zh"
+# 搜索全字符串（适用于单词不以空格分隔的语言）
+#SearchFullString = "true"
+
+# LastFM 相关（类似歌手、专辑封面、热门歌曲、播放记录等信息）
+#LastFM.ApiKey = ""
+#LastFM.Secret = ""
+
+# Spotify 相关（歌手照片）
+#Spotify.ID = ""
+#Spotify.Secret = ""
+
+# 歌曲分享功能
+#EnableSharing = "true"
+
 MusicFolder = '/opt/music'
 DataFolder = '/opt/navidrome'
 CacheFolder = '/opt/navidrome/cache'
 ScanSchedule = '@every 24h'
-ImageCacheSize = '100MB'
+ImageCacheSize = '1GB'
 TranscodingCacheSize = '100MB'
 Address = '0.0.0.0'
 Port = '4533'
-LogLevel = 'warn'
+LogLevel = 'error'

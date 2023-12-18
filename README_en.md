@@ -2,11 +2,7 @@
 
 [Chinese Documentation](README.md) | [English](README_en.md)
 
-Installing Docker on OpenWrt can cause TPROXY transparent proxy to fail, thus affecting UDP proxy.
-
-However, the official Navidrome release includes binary executable files that can be run directly on OpenWrt.
-
-Here, a LuCI interface for Navidrome binary files is provided for easy setup and installation.
+A LuCI interface for running [Navidrome](https://github.com/navidrome/navidrome/) on OpenWrt.
 
 ## Features
 
@@ -20,7 +16,11 @@ Here, a LuCI interface for Navidrome binary files is provided for easy setup and
 
 ## Instructions
 
+Installing Docker on OpenWrt can cause TPROXY transparent proxy to fail, thus affecting UDP proxy.
 
+However, the official Navidrome release includes binary executable files that can be run directly on OpenWrt.
+
+Here, a LuCI interface for Navidrome binary files is provided for easy setup and installation.
 
 ## Download
 
