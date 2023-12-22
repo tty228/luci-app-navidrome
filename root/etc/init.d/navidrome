@@ -18,16 +18,9 @@ get_config() {
 		modify_config "$config_name"
 	done
 
-	if [ -z "$Enable" ] || [ "$Enable" -eq 0 ]; then
-		echo "Navidrome is not enabled. Exiting..."
-		return 1
-	fi
-
-	if [ ! -d "$DataFolder" ]; then
-		logger -p daemon.error -t "navidrome[${$}]" "/your/data/folder is empty. Exiting..."
-		return 1
-	fi
-
+	[ -z "$Enable" ] || [ "$Enable" -eq 0 ] && { echo "Navidrome is not enabled. Exiting..."; return 1; }
+	[ ! -d "$DataFolder" ] && { logger -p daemon.error -t "navidrome[${$}]" "DataFolder folder does not exist. Exiting..."; return 1; }
+	[ ! -d "$MusicFolder" ] && { logger -p daemon.error -t "navidrome[${$}]" "MusicFolder folder does not exist. Exiting..."; return 1; }
 	return 0
 }
 
@@ -46,17 +39,16 @@ modify_config() {
 }
 
 start_service() {
+	get_config || return 1
 	procd_open_instance
-	if get_config; then
-		if [ -f "$Program_path" ];then
-			# 启动 navidrome
-			procd_set_param command ${Program_path}
-			procd_append_param command --configfile "$config_path"
-			echo "Started navidrome process."
-		else
-			procd_set_param command /usr/libexec/navidrome-call
-			procd_append_param command update
-		fi
+	if [ -f "$Program_path" ];then
+		# 启动 navidrome
+		procd_set_param command ${Program_path}
+		procd_append_param command --configfile "$config_path"
+		echo "Started navidrome process."
+	else
+		procd_set_param command /usr/libexec/navidrome-call
+		procd_append_param command update
 	fi
 	procd_set_param term_timeout 15
 	procd_set_param user "$user"
