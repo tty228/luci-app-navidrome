@@ -97,6 +97,7 @@ unzip() {
 		/etc/init.d/navidrome stop
 		sleep 1
 		mv "${extraction_path}/navidrome" "$Program_path"
+		chmod 0755 "$Program_path"
 		/etc/init.d/navidrome start
 		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】success.." >> $download_log_path
 	fi
