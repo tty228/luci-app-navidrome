@@ -99,7 +99,7 @@ unzip() {
 		mv "${extraction_path}/navidrome" "$Program_path"
 		chmod 0755 "$Program_path"
 		/etc/init.d/navidrome start
-		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】success.." >> $download_log_path
+		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】解压完成.." >> $download_log_path
 	fi
 	echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】清理生成的临时文件" >> $download_log_path
 	rm -rf "$download_path" "$extraction_path" "$lock_file"

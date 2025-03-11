@@ -74,8 +74,8 @@ msgid "ScanSchedule"
 msgstr "扫描时间间隔"
 
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:85
-msgid "Music library scan interval, to fully disable it, set it to 0."
-msgstr "音乐库扫描时间间隔，要完全禁用它，请将其设置为 0"
+msgid "Schedule for automatic scans. Use Cron syntax. To fully disable it, set it to 0."
+msgstr "音乐库自动扫描，使用 Cron 语法；要完全禁用它，请将其设置为 0"
 
 #: applications/luci-app-navidrome/htdocs/luci-static/resources/view/navidrome/config.js:87
 msgid "DataFolder"

@@ -133,7 +133,7 @@ return view.extend({
 						logContainer.innerText = logContent || 'No log content available.';
 					})
 					.catch(function (err) {
-						logContainer.innerText = 'Error reading log: ' + err.message;
+						logContainer.innerText = 'Waiting for download to start...';
 					});
 			}
 
@@ -195,8 +195,8 @@ return view.extend({
 
 		o = s.option(form.Value, "ScanSchedule", _("ScanSchedule"))
 		o.rmempty = false
-		o.placeholder = "@every 24h"
-		o.description = _("Music library scan interval, to fully disable it, set it to 0.")
+		o.placeholder = "0"
+		o.description = _("Schedule for automatic scans. Use Cron syntax. To fully disable it, set it to 0.")
 
 		o = s.option(form.Value, "DataFolder", _("DataFolder"))
 		o.rmempty = false

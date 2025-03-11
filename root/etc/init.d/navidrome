@@ -31,6 +31,8 @@ modify_config() {
 	eval "config_value=\$$config_name"
 	[ -z "$config_value" ] && return
 
+	[ "$config_name" = "ScanSchedule" ] && config_name="Scanner.Schedule"
+
 	# 删除旧的配置项
 	sed -i "/^$config_name /d" "$config_path"
 

@@ -23,7 +23,7 @@
 MusicFolder = '/opt/music'
 DataFolder = '/opt/navidrome'
 CacheFolder = '/opt/navidrome/cache'
-ScanSchedule = '@every 24h'
+Scanner.Schedule = '0'
 ImageCacheSize = '1GB'
 TranscodingCacheSize = '100MB'
 Address = '0.0.0.0'
